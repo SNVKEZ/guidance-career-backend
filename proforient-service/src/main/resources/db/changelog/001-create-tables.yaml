@@ -1,0 +1,448 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 001-init-schema
+      author: belous_dev
+      changes:
+
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+        # ======================
+        # Questionnaire
+        # ======================
+        - createTable:
+            tableName: questionnaire
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: code
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: title
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: time_limit_minutes
+                  type: INT
+
+        # ======================
+        # Dimension
+        # ======================
+        - createTable:
+            tableName: dimension
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: questionnaire_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_dimension_questionnaire
+            baseTableName: dimension
+            baseColumnNames: questionnaire_id
+            referencedTableName: questionnaire
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # Stats
+        # ======================
+        - createTable:
+            tableName: stats
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: result
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: test_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+
+        # ======================
+        # Question
+        # ======================
+        - createTable:
+            tableName: question
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: number
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: questionnaire_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_question_questionnaire
+            baseTableName: question
+            baseColumnNames: questionnaire_id
+            referencedTableName: questionnaire
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # Answer option
+        # ======================
+        - createTable:
+            tableName: answer_option
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: label
+                  type: varchar(8)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: question_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dimension_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_answer_option_question
+            baseTableName: answer_option
+            baseColumnNames: question_id
+            referencedTableName: question
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_answer_option_dimension
+            baseTableName: answer_option
+            baseColumnNames: dimension_id
+            referencedTableName: dimension
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # Faculties
+        # ======================
+        - createTable:
+            tableName: faculties
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: link
+                  type: TEXT
+
+        # ======================
+        # Direction
+        # ======================
+        - createTable:
+            tableName: direction
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: faculty_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_direction_faculty
+            baseTableName: direction
+            baseColumnNames: faculty_id
+            referencedTableName: faculties
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # Dimension ↔ Faculty
+        # ======================
+        - createTable:
+            tableName: dimension_faculties
+            columns:
+              - column:
+                  name: dimension_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: faculty_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: dimension_faculties
+            columnNames: dimension_id, faculty_id
+            constraintName: pk_dimension_faculties
+
+        - addForeignKeyConstraint:
+            constraintName: fk_dimension_faculties_dimension
+            baseTableName: dimension_faculties
+            baseColumnNames: dimension_id
+            referencedTableName: dimension
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_dimension_faculties_faculty
+            baseTableName: dimension_faculties
+            baseColumnNames: faculty_id
+            referencedTableName: faculties
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # Dimension ↔ Direction
+        # ======================
+        - createTable:
+            tableName: dimension_directions
+            columns:
+              - column:
+                  name: dimension_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: direction_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: dimension_directions
+            columnNames: dimension_id, direction_id
+            constraintName: pk_dimension_directions
+
+        - addForeignKeyConstraint:
+            constraintName: fk_dimension_direction_dimensions
+            baseTableName: dimension_directions
+            baseColumnNames: dimension_id
+            referencedTableName: dimension
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_dimension_direction_directions
+            baseTableName: dimension_directions
+            baseColumnNames: direction_id
+            referencedTableName: direction
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # Test session
+        # ======================
+        - createTable:
+            tableName: test_session
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: UUID
+              - column:
+                  name: started
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  type: TIMESTAMP
+              - column:
+                  name: questionnaire_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_test_session_questionnaire
+            baseTableName: test_session
+            baseColumnNames: questionnaire_id
+            referencedTableName: questionnaire
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # User answer
+        # ======================
+        - createTable:
+            tableName: user_answer
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: session_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: question_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: option_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_user_answer_session
+            baseTableName: user_answer
+            baseColumnNames: session_id
+            referencedTableName: test_session
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_user_answer_question
+            baseTableName: user_answer
+            baseColumnNames: question_id
+            referencedTableName: question
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_user_answer_option
+            baseTableName: user_answer
+            baseColumnNames: option_id
+            referencedTableName: answer_option
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # ======================
+        # Score
+        # ======================
+        - createTable:
+            tableName: score
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: value
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dimension_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: session_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk_score_dimension
+            baseTableName: score
+            baseColumnNames: dimension_id
+            referencedTableName: dimension
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_score_session
+            baseTableName: score
+            baseColumnNames: session_id
+            referencedTableName: test_session
+            referencedColumnNames: id
+            onDelete: CASCADE

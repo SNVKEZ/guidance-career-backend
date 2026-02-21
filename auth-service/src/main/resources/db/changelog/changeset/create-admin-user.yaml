@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-admin-user
+      author: belous_dev
+      changes:
+        - insert:
+            tableName: gen_user
+            columns:
+              - column:
+                  name: uuid
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: username
+                  value: "admin"
+              - column:
+                  name: password
+                  value: "$2a$10$fYmWSO4vfga8DjshVbexHec.E0l9870EMHJaeAD8FTKiyls2KMALy"
+              - column:
+                  name: role
+                  value: "ADMIN"
+      rollback:
+        - delete:
+            tableName: gen_user
+            where: "username='admin'"

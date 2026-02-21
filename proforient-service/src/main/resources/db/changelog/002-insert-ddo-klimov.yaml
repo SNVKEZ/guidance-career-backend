@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002
+      author: belous_dev
+      changes:
+        - sqlFile:
+            path: sql/data_klimov.sql
+            relativeToChangelogFile: true
+            endDelimiter: ;
+            splitStatements: true
+            stripComments: false

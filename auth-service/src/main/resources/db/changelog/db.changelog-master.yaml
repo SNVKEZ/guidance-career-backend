@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-gen_user
+      author: belous_dev
+      changes:
+        - createTable:
+            tableName: gen_user
+            columns:
+              - column:
+                  name: uuid
+                  type: uuid
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: gen_user
+  - include:
+      file: db/changelog/changeset/create-admin-user.yaml
