@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-add-image-url
+      author: belous_dev
+      changes:
+        - addColumn:
+            tableName: questionnaire
+            columns:
+              - column:
+                  name: image_url
+                  type: TEXT
+
+  - changeSet:
+      id: 004-fill-klimov-image
+      author: belous_dev
+      changes:
+        - update:
+            tableName: questionnaire
+            columns:
+              - column:
+                  name: image_url
+                  value: "/images/klimov.png"
+            where: code = 'KLIMOV_DDO'

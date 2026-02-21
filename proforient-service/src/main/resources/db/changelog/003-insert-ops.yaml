@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003
+      author: belous_dev
+      changes:
+        - sqlFile:
+            path: sql/data_jovaischa.sql
+            relativeToChangelogFile: true
+            endDelimiter: ;
+            splitStatements: true
+            stripComments: false

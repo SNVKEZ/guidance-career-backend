@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/001-create-tables.yaml
+
+  - include:
+      file: db/changelog/002-insert-ddo-klimov.yaml
+
+  - include:
+      file: db/changelog/003-insert-ops.yaml
+
+  - include:
+      file: db/changelog/004-add-image-url.yaml
+
+  - include:
+      file: db/changelog/005-add-image-url.yaml
