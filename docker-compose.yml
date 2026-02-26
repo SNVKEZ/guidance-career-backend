@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-  # === PostgreSQL ===
   postgres:
     image: postgres:16
     container_name: postgres
@@ -31,8 +30,6 @@ services:
     networks:
       - backend
 
-
-  # === Auth Service ===
   auth-service:
     container_name: auth-service
     build:
@@ -53,7 +50,6 @@ services:
     networks:
       - backend
 
-  # === proforient Service ===
   proforient-service:
     container_name: proforient-service
     build:
@@ -66,7 +62,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/career_guidance
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      AUTH_SERVICE_URL: http://auth-service:8081
     volumes:
       - ~/.m2:/root/.m2
     depends_on:
@@ -76,12 +71,9 @@ services:
     networks:
       - backend
 
-
-# === Volumes ===
 volumes:
   pg_data:
 
-# === Network ===
 networks:
   backend:
     driver: bridge
